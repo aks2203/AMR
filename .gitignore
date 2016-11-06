@@ -76,3 +76,8 @@ Session.vim
 # auto-generated tag files
 tags
 
+### Python ###
+*.pyc
+
+### local output ###
+_output
