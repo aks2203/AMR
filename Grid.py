@@ -2,7 +2,7 @@
 #
 # Avi Schwarzschild
 # Fall 2015 - reaserch
-# gird functions
+# grid functions
 # 
 ###############################
 
