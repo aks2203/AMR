@@ -19,7 +19,7 @@ dry_tolerance = 1e-3
 
 class Grid:
     
-    def __init__(self, grid_edges, bath_data, eta_init=[0,0], momentum_data = []):
+    def __init__(self, grid_edges, bath_data, momentum_data = []):
         self.grid = np.array(grid_edges)      # a list of the grid edges
         self.bath_data = np.array(bath_data)
         self.bathymetry = Bathymetry(bath_data)   
@@ -27,7 +27,7 @@ class Grid:
         self.num_cells = len(self.grid) - 1 # number of cells in computational grid
         self.eta = np.zeros(self.num_cells)
         self.eta2 = np.zeros(self.num_cells)
-        self.eta_init = eta_init
+        self.eta_init = []
         self.h = np.zeros(self.num_cells)
         self.h2 = np.zeros(self.num_cells)
         if momentum_data == []: 
@@ -49,9 +49,10 @@ class Grid:
         if surface_height2 == None: surface_height2 = surface_height
         self.eta[0:self.num_cells/2] = surface_height
         self.eta[self.num_cells/2:] = surface_height2
-        self.eta2[:] = .2
-        self.h = self.eta - self.eta2
-        self.h2 = self.eta2 - self.bathvals
+        self.eta2[:] = 0
+        self.eta_init = [surface_height, 0]
+        self.h = self.eta - self.bathvals
+        self.h2 = self.eta2 - self.eta
 
 
     def fill_gaussian(self):
@@ -104,8 +105,8 @@ class Grid:
         plt.fill_between(pbins, min(self.bathvals) - 2, pbath, facecolor='burlywood')
         plt.fill_between(pbins, pbath, peta, facecolor='lightskyblue')
         plt.fill_between(pbins, peta, peta2, facecolor='blue')
-        plt.plot(pbins, peta, '-ro')
-        plt.plot([x[0] for x in self.bath_data], [x[1] for x in self.bath_data], '-g')
+        # plt.plot(pbins, peta, '-ro')
+        # plt.plot([x[0] for x in self.bath_data], [x[1] for x in self.bath_data], '-g')
 
         if len(self.grid) < 30: 
             for i in self.grid: 
@@ -142,9 +143,13 @@ class Grid:
         self.new_grid = np.array(self.new_grid)
 
     def find_etas(self):
-        eta2 = (self.h2 > dry_tolerance)*self.h2 - self.bathvals + (self.h2 < dry_tolerance)*self.eta_init[1]
-        eta = (self.h > dry_tolerance)*self.h - eta2 + (self.h < dry_tolerance)*self.eta_init[0]
-        print eta, eta2
+        #This would take into account dry cells
+        eta = (self.h > dry_tolerance)*self.h + self.bathvals + (self.h < dry_tolerance)*self.eta_init[0]
+        eta2 = (self.h2 > dry_tolerance)*self.h2 + eta + (self.h2 < dry_tolerance)*self.eta_init[1]
+
+        #This assumes no dry cells:
+        # eta = self.h + self.bathvals
+        # eta2 = self.h2 + eta
         return eta, eta2
 
 
@@ -223,8 +228,8 @@ class Grid:
         self.grid = self.new_grid
 
         #eta to h
-        self.h = self.eta - self.eta2
-        self.h2 = self.eta2 - self.bathvals
+        self.h = self.eta - self.bathvals
+        self.h2 = self.eta2 - self.eta
 
         # Mass check
         mass_a2, mass_b2, mu_a2, mu_b2 = self.mass_check()
