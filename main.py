@@ -1,7 +1,7 @@
 ################################
 #
 # Avi Schwarzschild
-# Fall 2015 - reaserch - v7
+# Fall 2016 - reaserch 
 # main2.py
 # 
 ###############################
@@ -16,19 +16,10 @@ import matplotlib.pyplot as plt
 import os
 import pdb
 
-#################################
-#
-# model a gausian hump of water with an island
-# on the line from 0-20
-# initial bath data for every integer
-# point. First level grid is uniform
-# with cell width of 2.
-#
-#################################
 
 #inputs:
 #bathymetry_data = [(0,-20), (1,-18), (2, -16), (3, -16), (4, -12), (5, -14), (6, -8)]
-bathymetry_data = np.array([(0,-2), (1,-1.8), (2, -1.6), (3, -1.0), (4, -.2), (5, .2), (6, .2)])
+bathymetry_data = np.array([(0,-2.0), (1,-2.0), (2, -2.0), (3, -2.0), (4, -.2), (5, -.2), (6, -.2)])
 
 grid_edges = np.array([0, 1, 2, 3, 4, 5, 6])
 
@@ -56,7 +47,5 @@ print my_grid.refine(None, 2);
 my_grid.plot_grid() # plot level three grid
 plt.savefig('_output/figure3')
 
-
-print my_grid.grid
 
 # system("open figure*")

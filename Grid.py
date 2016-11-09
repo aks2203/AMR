@@ -1,7 +1,7 @@
 ################################
 #
 # Avi Schwarzschild
-# Fall 2015 - reaserch
+# Fall 2016 - reaserch
 # grid functions
 # 
 ###############################
@@ -53,9 +53,7 @@ class Grid:
         self.eta_init = [surface_height, 0]
         self.h = (self.eta - self.bathvals)*((self.eta-self.bathvals) > 0) + 0*((self.eta-self.bathvals) <= 0)
         h2 = self.eta2 - self.h - self.bathvals
-        print h2
         self.h2 = h2*(h2>0) + 0 *(h2<=0)
-        print self.bathvals, self.h, self.h2
  
 
     def fill_gaussian(self):
@@ -72,11 +70,13 @@ class Grid:
         mass = 0; mass2 = 0;
         mu = np.sum(self.mu_vals)
         mu2 = np.sum(self.mu2_vals)
-        for i in xrange(len(self.grid)-1):
-            mass += (self.h[i])*(self.grid[i+1]-self.grid[i])
-            mass2 += (self.h2[i])*(self.grid[i+1]-self.grid[i])
+        # for i in xrange(len(self.grid)-1):
+        #     mass += (self.h[i])*(self.grid[i+1]-self.grid[i])
+        #     mass2 += (self.h2[i])*(self.grid[i+1]-self.grid[i])
+        mass = np.sum(self.h)*self.grid[1]-self.grid[0]
+        mass2 = np.sum(self.h2)*self.grid[1]-self.grid[0]
 
-        
+
         return mass, mass2, mu, mu2
 
     
@@ -139,12 +139,8 @@ class Grid:
 
     def find_etas(self):
         #This would take into account dry cells
-        eta = (self.h > dry_tolerance)*self.h + self.bathvals + (self.h < dry_tolerance)*self.eta_init[0]
-        eta2 = (self.h2 > dry_tolerance)*self.h2 + eta + (self.h2 < dry_tolerance)*self.eta_init[1]
-
-        #This assumes no dry cells:
-        # eta = self.h + self.bathvals
-        # eta2 = self.h2 + eta
+        eta = (self.h > dry_tolerance)*(self.h + self.bathvals) + (self.h <= dry_tolerance)*self.eta_init[0]
+        eta2 = (self.h2 > dry_tolerance)*(self.h2 + self.h + self.bathvals) + (self.h2 <= dry_tolerance)*self.eta_init[1]
         return eta, eta2
 
 
@@ -202,6 +198,8 @@ class Grid:
         # Mass check
         mass_a1, mass_b1, mu_a1, mu_b1 = self.mass_check()
 
+        print self.h2
+
         # Get new grid
         if grid != None: self.new_grid = grid
         else: self.get_new_grid(factor)
@@ -212,25 +210,30 @@ class Grid:
         self.bathvals = self.bathymetry.bath_cell_values(self.new_grid)
 
         # Refine surface one
-        self.eta = self.refine_surface(self.eta, factor)
+        eta = self.refine_surface(self.eta, factor)
         self.mu_vals = self.refine_mu(self.mu_vals, factor)
 
 
         # Refine surface two
-        self.eta2 = self.refine_surface(self.eta2, factor)
+        eta2 = self.refine_surface(self.eta2, factor)
         self.mu2_vals = self.refine_mu(self.mu2_vals, factor)
 
         self.grid = self.new_grid
 
         #eta to h
-        self.h = self.eta - self.bathvals
-        self.h2 = self.eta2 - self.eta
+        # self.h = self.eta - self.bathvals
+        # self.h2 = self.eta2 - self.eta
+
+        self.h = (eta - self.bathvals)*((eta-self.bathvals) > dry_tolerance) + dry_tolerance*((eta-self.bathvals) <= dry_tolerance)
+        h2 = eta2 - self.h - self.bathvals
+        self.h2 = h2*(h2>dry_tolerance) + dry_tolerance *(h2<=dry_tolerance)
 
         # Mass check
         mass_a2, mass_b2, mu_a2, mu_b2 = self.mass_check()
 
+        print self.h2
+
         return np.allclose(mass_a1, mass_a2), np.allclose(mass_b1, mass_b2)
 
-     
 
 
