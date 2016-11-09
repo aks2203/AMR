@@ -51,9 +51,12 @@ class Grid:
         self.eta[self.num_cells/2:] = surface_height2
         self.eta2[:] = 0
         self.eta_init = [surface_height, 0]
-        self.h = self.eta - self.bathvals
-        self.h2 = self.eta2 - self.eta
-
+        self.h = (self.eta - self.bathvals)*((self.eta-self.bathvals) > 0) + 0*((self.eta-self.bathvals) <= 0)
+        h2 = self.eta2 - self.h - self.bathvals
+        print h2
+        self.h2 = h2*(h2>0) + 0 *(h2<=0)
+        print self.bathvals, self.h, self.h2
+ 
 
     def fill_gaussian(self):
         self.fill_const(self.eta_init[0], self.eta_init[1])
@@ -82,17 +85,9 @@ class Grid:
         plt.figure()
         # plt.subplot(gs[0])
 
-        pbath = [] 
-        for i in self.bathvals: pbath.append(i); pbath.append(i)
-        
-        pmu = []
-        for i in self.mu_vals: pmu.append(i); pmu.append(i)
-
-        peta = []
-        for i in self.eta: peta.append(i); peta.append(i)
-
-        peta2 = []
-        for i in self.eta2: peta2.append(i); peta2.append(i)
+        pbath = np.repeat(self.bathvals, 2)
+        peta = pbath + np.repeat(self.h, 2)
+        peta2 = peta + np.repeat(self.h2, 2)
 
         for j in xrange(len(pbath)):
             if pbath[j] > peta[j]: peta[j] = pbath[j]
