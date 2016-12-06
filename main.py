@@ -18,10 +18,10 @@ import pdb
 
 
 #inputs:
-#bathymetry_data = [(0,-20), (1,-18), (2, -16), (3, -16), (4, -12), (5, -14), (6, -8)]
-bathymetry_data = np.array([(0,-2.0), (1,-2.0), (2, -2.0), (3, -2.0), (4, -.2), (5, -.2), (6, -.2)])
+# bathymetry_data = np.array([(0,-2), (2,-1), (4, 0), (6, 3)])
+bathymetry_data = np.array([(0,-2.0), (1,-1.8), (2, -1.4), (3, -1.6), (4, -1.3), (5, -1.2), (6, -1.1)])
 
-grid_edges = np.array([0, 1, 2, 3, 4, 5, 6])
+grid_edges = np.array([0, 2, 4, 6])
 
 if not os.path.exists('_output'):
     os.makedirs('_output')
