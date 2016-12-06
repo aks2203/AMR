@@ -13,11 +13,11 @@ def cell_values(grid, interpolants, integrals):
             j = 0
             x0found = x1found = False
             while not(x0found and x1found):
-                int = interpolants[j]
-                if grid[i] >= int[0]: 
+                ints = interpolants[j]
+                if grid[i] >= ints[0]: 
                     i0 = j
                     x0found = True
-                if grid[i+1] <= int[1]: 
+                if grid[i+1] <= ints[1]: 
                     i1 = j
                     x1found = True
                 j += 1
